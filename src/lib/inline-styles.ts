@@ -156,33 +156,6 @@ function unwrapTheadTbody(doc: Document): void {
   }
 }
 
-function addLineBreaks(doc: Document): void {
-  // Insert <p>&nbsp;</p> between block-level elements for Tistory spacing
-  const body = doc.body;
-  const children = Array.from(body.children);
-  const spacer = () => {
-    const p = doc.createElement("p");
-    p.innerHTML = "&nbsp;";
-    return p;
-  };
-
-  for (let i = children.length - 1; i > 0; i--) {
-    const current = children[i];
-    const prev = children[i - 1];
-    const prevTag = prev.tagName.toLowerCase();
-    const currentTag = current.tagName.toLowerCase();
-    // Skip: table internals, and after headings (headings have their own margin)
-    const skipTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
-    const headingTags = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
-    if (
-      !skipTags.has(prevTag) &&
-      !skipTags.has(currentTag) &&
-      !headingTags.has(prevTag)
-    ) {
-      body.insertBefore(spacer(), current);
-    }
-  }
-}
 
 export function applyInlineStyles(html: string): string {
   if (typeof window === "undefined") {
@@ -218,9 +191,6 @@ export function applyInlineStyles(html: string): string {
 
     applyHljsStyles(element);
   });
-
-  // 5. Add line breaks between blocks for Tistory spacing
-  addLineBreaks(doc);
 
   return doc.body.innerHTML;
 }
