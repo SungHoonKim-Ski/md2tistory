@@ -3,19 +3,19 @@ const elementStyles: Record<string, string> = {
   h3: "font-size:1.25em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   h4: "font-size:1em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   p: "margin:0;line-height:1.6;",
-  ul: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:disc;",
-  ol: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:decimal;",
+  ul: "padding-left:2em;margin:16px 0;list-style-type:disc;",
+  ol: "padding-left:2em;margin:16px 0;list-style-type:decimal;",
   li: "margin-bottom:4px;line-height:1.6;",
   blockquote:
-    "border-left:4px solid #dfe2e5;padding:0 16px;color:#6a737d;margin:0 0 16px 0;",
+    "border-left:4px solid #dfe2e5;padding:0 16px;color:#6a737d;margin:16px 0;",
   table:
-    "border-collapse:collapse;margin-bottom:16px;width:100%;border-spacing:0;",
+    "border-collapse:collapse;margin:16px 0;width:100%;border-spacing:0;",
   thead: "",
   tbody: "",
   th: "background-color:#f6f8fa;border:1px solid #d0d7de;padding:8px 12px;font-weight:700;text-align:left;",
   td: "border:1px solid #d0d7de;padding:8px 12px;",
   tr: "",
-  pre: "background:#f6f8fa;padding:16px;border-radius:6px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:14px;line-height:1.45;margin-bottom:16px;",
+  pre: "background:#f6f8fa;padding:16px;border-radius:6px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:14px;line-height:1.45;margin:16px 0;",
   code: "background-color:#f1f3f5;padding:3px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:85%;color:#e45735;",
   a: "color:#0969da;text-decoration:underline;",
   strong: "font-weight:700;",
@@ -205,15 +205,9 @@ function addLineBreaks(doc: Document): void {
     const prevTag = prev.tagName.toLowerCase();
     const currentTag = current.tagName.toLowerCase();
 
-    // Add spacer between block elements, but not between table/list internals or headings
-    const internalTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
-    const headingTags = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
-    if (
-      !internalTags.has(prevTag) &&
-      !internalTags.has(currentTag) &&
-      !headingTags.has(prevTag) &&
-      !headingTags.has(currentTag)
-    ) {
+    // Only add spacer between consecutive <p> elements
+    // Other block elements (blockquote, pre, ul, ol, hr, table) have their own visual separation
+    if (prevTag === "p" && currentTag === "p") {
       body.insertBefore(spacer(), current);
     }
   }
