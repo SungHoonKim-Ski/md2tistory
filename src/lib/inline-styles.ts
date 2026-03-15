@@ -166,55 +166,26 @@ function convertInlineCode(doc: Document): void {
   }
 }
 
-function splitBrIntoParagraphs(doc: Document): void {
-  // Convert <br> inside <p> into separate <p> elements for Tistory compatibility
+function splitBrIntoLines(html: string): string {
+  // Replace <br> inside <p> with </p><p> for Tistory compatibility
   // Tistory ignores <br> and only recognizes <p> for line breaks
-  const paragraphs = Array.from(doc.querySelectorAll("p"));
-  for (const p of paragraphs) {
-    const brs = p.querySelectorAll("br");
-    if (brs.length === 0) continue;
-
-    const parent = p.parentNode;
-    if (!parent) continue;
-
-    // Split innerHTML by <br> and create separate <p> elements
-    const fragment = doc.createDocumentFragment();
-    const tempDiv = doc.createElement("div");
-    tempDiv.innerHTML = p.innerHTML;
-
-    const parts: string[] = [];
-    let currentPart = "";
-
-    for (const node of Array.from(tempDiv.childNodes)) {
-      if (node.nodeName === "BR") {
-        parts.push(currentPart);
-        currentPart = "";
-      } else {
-        if (node instanceof Element) {
-          currentPart += node.outerHTML;
-        } else {
-          currentPart += node.textContent || "";
-        }
-      }
+  // Line-break <p> gets margin:0 to distinguish from paragraph breaks
+  return html.replace(
+    /(<p[^>]*>)([\s\S]*?)(<\/p>)/g,
+    (_match, openTag, content, closeTag) => {
+      if (!/<br\s*\/?>/i.test(content)) return _match;
+      const parts = content.split(/<br\s*\/?>/i);
+      return parts
+        .map((part: string, idx: number) => {
+          const trimmed = part.trim();
+          if (trimmed === "") return "";
+          if (idx === 0) return `${openTag}${trimmed}${closeTag}`;
+          return `<p style="margin:0;line-height:1.6;">${trimmed}</p>`;
+        })
+        .filter(Boolean)
+        .join("");
     }
-    parts.push(currentPart);
-
-    for (let idx = 0; idx < parts.length; idx++) {
-      const trimmed = parts[idx].trim();
-      if (trimmed === "") continue;
-      const newP = doc.createElement("p");
-      newP.innerHTML = trimmed;
-      // First part keeps original <p> style, subsequent parts get zero margin (line break, not new paragraph)
-      if (idx === 0) {
-        newP.setAttribute("style", p.getAttribute("style") || "");
-      } else {
-        newP.setAttribute("style", "margin:0;line-height:1.6;");
-      }
-      fragment.appendChild(newP);
-    }
-
-    parent.replaceChild(fragment, p);
-  }
+  );
 }
 
 function unwrapTheadTbody(doc: Document): void {
@@ -273,8 +244,9 @@ export function applyInlineStyles(html: string): string {
     applyHljsStyles(element);
   });
 
-  // 7. Split <br> in <p> into separate <p> for Tistory line breaks (after inline styles)
-  splitBrIntoParagraphs(doc);
+  // 7. Split <br> in <p> into separate lines for Tistory
+  let result = doc.body.innerHTML;
+  result = splitBrIntoLines(result);
 
-  return doc.body.innerHTML;
+  return result;
 }
