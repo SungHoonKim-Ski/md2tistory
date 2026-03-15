@@ -188,6 +188,35 @@ function splitBrIntoLines(html: string): string {
   );
 }
 
+function addLineBreaks(doc: Document): void {
+  const body = doc.body;
+  const children = Array.from(body.children);
+  const spacer = () => {
+    const p = doc.createElement("p");
+    p.innerHTML = "&nbsp;";
+    return p;
+  };
+
+  const skipTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
+  const headingTags = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
+
+  for (let i = children.length - 1; i > 0; i--) {
+    const current = children[i];
+    const prev = children[i - 1];
+    const prevTag = prev.tagName.toLowerCase();
+    const currentTag = current.tagName.toLowerCase();
+
+    if (
+      !skipTags.has(prevTag) &&
+      !skipTags.has(currentTag) &&
+      !headingTags.has(prevTag) &&
+      !headingTags.has(currentTag)
+    ) {
+      body.insertBefore(spacer(), current);
+    }
+  }
+}
+
 function unwrapTheadTbody(doc: Document): void {
   // Remove thead/tbody wrappers — Tistory doesn't handle them properly.
   // Move their child <tr> elements directly under <table>.
@@ -244,7 +273,10 @@ export function applyInlineStyles(html: string): string {
     applyHljsStyles(element);
   });
 
-  // 7. Split <br> in <p> into separate lines for Tistory
+  // 7. Add <p>&nbsp;</p> spacers between block elements for Tistory paragraph spacing
+  addLineBreaks(doc);
+
+  // 8. Split <br> in <p> into separate lines for Tistory
   let result = doc.body.innerHTML;
   result = splitBrIntoLines(result);
 
