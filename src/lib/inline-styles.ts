@@ -1,10 +1,7 @@
 const elementStyles: Record<string, string> = {
-  h1: "font-size:2em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
-  h2: "font-size:1.5em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;border-bottom:1px solid #d0d7de;padding-bottom:0.3em;",
+  h2: "font-size:1.5em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   h3: "font-size:1.25em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   h4: "font-size:1em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
-  h5: "font-size:0.875em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
-  h6: "font-size:0.85em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;color:#656d76;",
   p: "margin-bottom:16px;margin-top:0;line-height:1.6;",
   ul: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:disc;",
   ol: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:decimal;",
@@ -12,23 +9,34 @@ const elementStyles: Record<string, string> = {
   blockquote:
     "border-left:4px solid #dfe2e5;padding:0 16px;color:#6a737d;margin:0 0 16px 0;",
   table:
-    "border-collapse:collapse;margin-bottom:16px;width:100%;overflow:auto;display:block;",
-  th: "background:#f6f8fa;border:1px solid #d0d7de;padding:8px 12px;font-weight:700;text-align:left;",
+    "border-collapse:collapse;margin-bottom:16px;width:100%;border-spacing:0;",
+  thead: "",
+  tbody: "",
+  th: "background-color:#f6f8fa;border:1px solid #d0d7de;padding:8px 12px;font-weight:700;text-align:left;",
   td: "border:1px solid #d0d7de;padding:8px 12px;",
   tr: "",
   pre: "background:#f6f8fa;padding:16px;border-radius:6px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:14px;line-height:1.45;margin-bottom:16px;",
-  code: "background:#f0f0f0;padding:2px 6px;border-radius:3px;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:85%;",
+  code: "background-color:#f1f3f5;padding:3px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;font-size:85%;color:#e45735;",
   a: "color:#0969da;text-decoration:underline;",
   strong: "font-weight:700;",
   em: "font-style:italic;",
   del: "text-decoration:line-through;",
-  hr: "border:none;border-top:1px solid #d0d7de;margin:24px 0;",
   img: "max-width:100%;height:auto;",
 };
 
 // pre > code should not have inline-code styles
 const preCodeStyles =
   "background:none;padding:0;border-radius:0;font-family:inherit;font-size:inherit;";
+
+// Tistory heading tag mapping: markdown h1→h2, h2→h3, h3→h4, h4+→h4
+const tistoryHeadingMap: Record<string, { tag: string; size: string }> = {
+  h1: { tag: "h2", size: "size26" },
+  h2: { tag: "h3", size: "size23" },
+  h3: { tag: "h4", size: "size20" },
+  h4: { tag: "h4", size: "size20" },
+  h5: { tag: "h4", size: "size20" },
+  h6: { tag: "h4", size: "size20" },
+};
 
 const hljsClassStyles: Record<string, string> = {
   "hljs-keyword": "color:#cf222e;font-weight:bold;",
@@ -99,6 +107,79 @@ function applyHljsStyles(element: Element): void {
   }
 }
 
+function convertHeadings(doc: Document): void {
+  // Convert headings in reverse order (h6→h4, ..., h1→h2) to avoid conflicts
+  const headingTags = ["h6", "h5", "h4", "h3", "h2", "h1"];
+  for (const tag of headingTags) {
+    const elements = Array.from(doc.querySelectorAll(tag));
+    for (const el of elements) {
+      const mapping = tistoryHeadingMap[tag];
+      if (!mapping) continue;
+
+      const newEl = doc.createElement(mapping.tag);
+      newEl.innerHTML = el.innerHTML;
+      newEl.setAttribute("data-ke-size", mapping.size);
+
+      // Copy existing attributes except style
+      for (const attr of Array.from(el.attributes)) {
+        if (attr.name !== "style") {
+          newEl.setAttribute(attr.name, attr.value);
+        }
+      }
+
+      el.parentNode?.replaceChild(newEl, el);
+    }
+  }
+}
+
+function convertHorizontalRules(doc: Document): void {
+  const hrs = Array.from(doc.querySelectorAll("hr"));
+  for (const hr of hrs) {
+    hr.setAttribute("contenteditable", "false");
+    hr.setAttribute("data-ke-type", "horizontalRule");
+    hr.setAttribute("data-ke-style", "style1");
+    hr.removeAttribute("style");
+  }
+}
+
+function unwrapTheadTbody(doc: Document): void {
+  // Remove thead/tbody wrappers — Tistory doesn't handle them properly.
+  // Move their child <tr> elements directly under <table>.
+  const wrappers = Array.from(doc.querySelectorAll("thead, tbody"));
+  for (const wrapper of wrappers) {
+    const parent = wrapper.parentNode;
+    if (!parent) continue;
+    while (wrapper.firstChild) {
+      parent.insertBefore(wrapper.firstChild, wrapper);
+    }
+    parent.removeChild(wrapper);
+  }
+}
+
+function addLineBreaks(doc: Document): void {
+  // Insert <p>&nbsp;</p> between block-level elements for Tistory spacing
+  const body = doc.body;
+  const children = Array.from(body.children);
+  const spacer = () => {
+    const p = doc.createElement("p");
+    p.innerHTML = "&nbsp;";
+    return p;
+  };
+
+  for (let i = children.length - 1; i > 0; i--) {
+    const current = children[i];
+    const prev = children[i - 1];
+    // Add spacer between block elements (but not between li, tr, td, th)
+    const skipTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
+    if (
+      !skipTags.has(prev.tagName.toLowerCase()) &&
+      !skipTags.has(current.tagName.toLowerCase())
+    ) {
+      body.insertBefore(spacer(), current);
+    }
+  }
+}
+
 export function applyInlineStyles(html: string): string {
   if (typeof window === "undefined") {
     return html;
@@ -107,12 +188,21 @@ export function applyInlineStyles(html: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  const allElements = doc.body.querySelectorAll("*");
+  // 1. Convert headings to Tistory format (h1→h2, h2→h3, h3→h4)
+  convertHeadings(doc);
 
+  // 2. Unwrap thead/tbody for Tistory compatibility
+  unwrapTheadTbody(doc);
+
+  // 3. Convert HR to Tistory format
+  convertHorizontalRules(doc);
+
+  // 4. Apply inline styles to all elements
+  const allElements = doc.body.querySelectorAll("*");
   allElements.forEach((element) => {
     const tag = element.tagName.toLowerCase();
     const isInsidePre =
-      element.tagName.toLowerCase() === "code" &&
+      tag === "code" &&
       element.parentElement?.tagName.toLowerCase() === "pre";
 
     if (isInsidePre) {
@@ -124,6 +214,9 @@ export function applyInlineStyles(html: string): string {
 
     applyHljsStyles(element);
   });
+
+  // 5. Add line breaks between blocks for Tistory spacing
+  addLineBreaks(doc);
 
   return doc.body.innerHTML;
 }
