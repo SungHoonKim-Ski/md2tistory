@@ -2,7 +2,7 @@ const elementStyles: Record<string, string> = {
   h2: "font-size:1.5em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   h3: "font-size:1.25em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
   h4: "font-size:1em;font-weight:700;margin-bottom:16px;margin-top:24px;line-height:1.25;",
-  p: "margin-bottom:16px;margin-top:0;line-height:1.6;",
+  p: "margin:0;line-height:1.6;",
   ul: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:disc;",
   ol: "padding-left:2em;margin-bottom:16px;margin-top:0;list-style-type:decimal;",
   li: "margin-bottom:4px;line-height:1.6;",
@@ -205,7 +205,15 @@ function addLineBreaks(doc: Document): void {
     const prevTag = prev.tagName.toLowerCase();
     const currentTag = current.tagName.toLowerCase();
 
-    if (prevTag === "p" && currentTag === "p") {
+    // Add spacer between block elements, but not between table/list internals or headings
+    const internalTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
+    const headingTags = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
+    if (
+      !internalTags.has(prevTag) &&
+      !internalTags.has(currentTag) &&
+      !headingTags.has(prevTag) &&
+      !headingTags.has(currentTag)
+    ) {
       body.insertBefore(spacer(), current);
     }
   }
