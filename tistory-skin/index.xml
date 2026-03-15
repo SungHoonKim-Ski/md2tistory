@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<skin>
+  <information>
+    <name>MD Skin</name>
+    <version>1.0.0</version>
+    <description>마크다운으로 글을 작성하면 자동으로 렌더링하는 티스토리 스킨</description>
+    <license>MIT</license>
+  </information>
+  <author>
+    <name>SungHoonKim</name>
+    <homepage>https://github.com/SungHoonKim-Ski</homepage>
+    <email></email>
+  </author>
+  <default>
+    <recentEntries>5</recentEntries>
+    <recentComments>5</recentComments>
+    <recentTrackbacks>0</recentTrackbacks>
+    <itemsOnGuestbook>10</itemsOnGuestbook>
+    <tagsInCloud>30</tagsInCloud>
+    <sortInCloud>3</sortInCloud>
+    <expandComment>0</expandComment>
+    <expandTrackback>0</expandTrackback>
+    <lengthOfRecentNotice>32</lengthOfRecentNotice>
+    <lengthOfRecentEntry>32</lengthOfRecentEntry>
+    <lengthOfRecentComment>32</lengthOfRecentComment>
+    <lengthOfRecentTrackback>32</lengthOfRecentTrackback>
+    <lengthOfLink>32</lengthOfLink>
+    <contentWidth>860</contentWidth>
+  </default>
+</skin>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[##_page_title_##]</title>
+  <link rel="stylesheet" href="./style.css">
+  <!-- highlight.js github theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <!-- markdown-it -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.1.0/markdown-it.min.js"></script>
+  <!-- highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- mermaid -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js"></script>
+</head>
+<body>
+  <div id="container">
+    <!-- Header -->
+    <header id="header">
+      <h1><a href="/">[##_title_##]</a></h1>
+      <p class="desc">[##_desc_##]</p>
+    </header>
+
+    <!-- Navigation / Category -->
+    <nav id="nav">
+      <s_sidebar>
+        <s_sidebar_element>
+          [##_sidebar_element_##]
+        </s_sidebar_element>
+      </s_sidebar>
+    </nav>
+
+    <main id="content">
+      <!-- Article (permalink) -->
+      <s_article_rep>
+        <article class="post">
+          <div class="post-header">
+            <span class="category"><a href="[##_article_rep_category_link_##]">[##_article_rep_category_##]</a></span>
+            <h2 class="post-title">
+              <a href="[##_article_rep_link_##]">[##_article_rep_title_##]</a>
+            </h2>
+            <div class="post-meta">
+              <time>[##_article_rep_date_##]</time>
+            </div>
+          </div>
+          <div class="post-body" id="md-content">
+            [##_article_rep_desc_##]
+          </div>
+          <!-- Tags -->
+          <s_tag_label>
+            <div class="post-tags">
+              <s_tag_label_rep>
+                <a href="[##_tag_label_link_##]">#[##_tag_label_rep_##]</a>
+              </s_tag_label_rep>
+            </div>
+          </s_tag_label>
+        </article>
+
+        <!-- Comments -->
+        <s_rp>
+          <div class="comments">
+            <h3>댓글 <span>[##_article_rep_rp_cnt_##]</span></h3>
+            <s_rp_rep>
+              <div class="comment [##_rp_rep_class_##]">
+                <div class="comment-header">
+                  <span class="author">[##_rp_rep_name_##]</span>
+                  <time>[##_rp_rep_date_##]</time>
+                </div>
+                <div class="comment-body">[##_rp_rep_desc_##]</div>
+              </div>
+            </s_rp_rep>
+            <!-- Comment form -->
+            <div class="comment-form">
+              <s_rp_input_form>
+                <form>
+                  <s_rp_guest>
+                    <input type="text" name="[##_rp_input_name_##]" placeholder="이름">
+                    <input type="password" name="[##_rp_input_password_##]" placeholder="비밀번호">
+                  </s_rp_guest>
+                  <textarea name="[##_rp_input_comment_##]" placeholder="댓글을 입력하세요"></textarea>
+                  <div class="comment-actions">
+                    <label><input type="checkbox" name="[##_rp_input_is_secret_##]"> 비밀글</label>
+                    <button type="submit">[##_rp_input_submit_##]</button>
+                  </div>
+                </form>
+              </s_rp_input_form>
+            </div>
+          </div>
+        </s_rp>
+      </s_article_rep>
+
+      <!-- Index (list) -->
+      <s_index_article_rep>
+        <article class="post-item">
+          <a href="[##_article_rep_link_##]">
+            <h2>[##_article_rep_title_##]</h2>
+            <p class="summary">[##_article_rep_summary_##]</p>
+            <time>[##_article_rep_simple_date_##]</time>
+          </a>
+        </article>
+      </s_index_article_rep>
+
+      <!-- Paging -->
+      <s_paging>
+        <div class="paging">
+          <s_paging_rep>
+            <a href="[##_paging_rep_link_##]" class="[##_paging_rep_class_##]">[##_paging_rep_num_##]</a>
+          </s_paging_rep>
+        </div>
+      </s_paging>
+
+      <!-- Guestbook -->
+      <s_guest>
+        <div class="guestbook">
+          <h2>방명록</h2>
+          <s_guest_rep>
+            <div class="guest-item">
+              <span class="author">[##_guest_rep_name_##]</span>
+              <time>[##_guest_rep_date_##]</time>
+              <p>[##_guest_rep_desc_##]</p>
+            </div>
+          </s_guest_rep>
+        </div>
+      </s_guest>
+    </main>
+
+    <footer id="footer">
+      <p>&copy; [##_title_##]</p>
+    </footer>
+  </div>
+
+  <script src="./images/script.js"></script>
+</body>
+</html>
