@@ -166,6 +166,51 @@ function convertInlineCode(doc: Document): void {
   }
 }
 
+function splitBrIntoParagraphs(doc: Document): void {
+  // Convert <br> inside <p> into separate <p> elements for Tistory compatibility
+  // Tistory ignores <br> and only recognizes <p> for line breaks
+  const paragraphs = Array.from(doc.querySelectorAll("p"));
+  for (const p of paragraphs) {
+    const brs = p.querySelectorAll("br");
+    if (brs.length === 0) continue;
+
+    const parent = p.parentNode;
+    if (!parent) continue;
+
+    // Split innerHTML by <br> and create separate <p> elements
+    const fragment = doc.createDocumentFragment();
+    const tempDiv = doc.createElement("div");
+    tempDiv.innerHTML = p.innerHTML;
+
+    const parts: string[] = [];
+    let currentPart = "";
+
+    for (const node of Array.from(tempDiv.childNodes)) {
+      if (node.nodeName === "BR") {
+        parts.push(currentPart);
+        currentPart = "";
+      } else {
+        if (node instanceof Element) {
+          currentPart += node.outerHTML;
+        } else {
+          currentPart += node.textContent || "";
+        }
+      }
+    }
+    parts.push(currentPart);
+
+    for (const part of parts) {
+      const trimmed = part.trim();
+      if (trimmed === "") continue;
+      const newP = doc.createElement("p");
+      newP.innerHTML = trimmed;
+      fragment.appendChild(newP);
+    }
+
+    parent.replaceChild(fragment, p);
+  }
+}
+
 function unwrapTheadTbody(doc: Document): void {
   // Remove thead/tbody wrappers — Tistory doesn't handle them properly.
   // Move their child <tr> elements directly under <table>.
@@ -204,7 +249,10 @@ export function applyInlineStyles(html: string): string {
   // 5. Convert inline code to span for Tistory
   convertInlineCode(doc);
 
-  // 6. Apply inline styles to all elements
+  // 6. Split <br> in <p> into separate <p> for Tistory line breaks
+  splitBrIntoParagraphs(doc);
+
+  // 7. Apply inline styles to all elements
   const allElements = doc.body.querySelectorAll("*");
   allElements.forEach((element) => {
     const tag = element.tagName.toLowerCase();
