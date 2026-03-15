@@ -168,9 +168,9 @@ export default function Home() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
         <div className="flex flex-col md:flex-row gap-4 h-full">
           <div className="flex-1 flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              마크다운 입력
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">마크다운 입력</label>
+            </div>
             <div className="flex-1 h-[70vh] md:h-[70vh]">
               <MarkdownEditor value={markdown} onChange={setMarkdown} />
             </div>
