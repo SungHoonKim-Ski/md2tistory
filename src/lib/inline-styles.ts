@@ -137,8 +137,8 @@ function convertHorizontalRules(doc: Document): void {
   for (const hr of hrs) {
     hr.setAttribute("contenteditable", "false");
     hr.setAttribute("data-ke-type", "horizontalRule");
-    hr.setAttribute("data-ke-style", "style1");
-    hr.removeAttribute("style");
+    hr.setAttribute("data-ke-style", "style6");
+    hr.setAttribute("style", "border:none;border-top:1px solid #d0d7de;margin:24px 0;display:block;width:100%;");
   }
 }
 
@@ -169,11 +169,15 @@ function addLineBreaks(doc: Document): void {
   for (let i = children.length - 1; i > 0; i--) {
     const current = children[i];
     const prev = children[i - 1];
-    // Add spacer between block elements (but not between li, tr, td, th)
+    const prevTag = prev.tagName.toLowerCase();
+    const currentTag = current.tagName.toLowerCase();
+    // Skip: table internals, and after headings (headings have their own margin)
     const skipTags = new Set(["li", "tr", "td", "th", "thead", "tbody"]);
+    const headingTags = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
     if (
-      !skipTags.has(prev.tagName.toLowerCase()) &&
-      !skipTags.has(current.tagName.toLowerCase())
+      !skipTags.has(prevTag) &&
+      !skipTags.has(currentTag) &&
+      !headingTags.has(prevTag)
     ) {
       body.insertBefore(spacer(), current);
     }
