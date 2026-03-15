@@ -142,6 +142,24 @@ function convertHorizontalRules(doc: Document): void {
   }
 }
 
+function convertThToTd(doc: Document): void {
+  // Convert <th> to <td> with bold styling — Tistory doesn't handle <th> properly
+  const ths = Array.from(doc.querySelectorAll("th"));
+  for (const th of ths) {
+    const td = doc.createElement("td");
+    td.innerHTML = th.innerHTML;
+    td.setAttribute("style",
+      "background-color:#f6f8fa;border:1px solid #d0d7de;padding:8px 12px;font-weight:700;text-align:left;"
+    );
+    for (const attr of Array.from(th.attributes)) {
+      if (attr.name !== "style") {
+        td.setAttribute(attr.name, attr.value);
+      }
+    }
+    th.parentNode?.replaceChild(td, th);
+  }
+}
+
 function convertBlockquotes(doc: Document): void {
   const blockquotes = Array.from(doc.querySelectorAll("blockquote"));
   for (const bq of blockquotes) {
@@ -239,7 +257,10 @@ export function applyInlineStyles(html: string): string {
   // 1. Convert headings to Tistory format (h1→h2, h2→h3, h3→h4)
   convertHeadings(doc);
 
-  // 2. Unwrap thead/tbody for Tistory compatibility
+  // 2. Convert <th> to <td> before unwrapping
+  convertThToTd(doc);
+
+  // 3. Unwrap thead/tbody for Tistory compatibility
   unwrapTheadTbody(doc);
 
   // 3. Convert HR to Tistory format
