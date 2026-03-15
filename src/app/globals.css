@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* Preview area prose styles */
-#preview-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; border-bottom: 1px solid #d0d7de; padding-bottom: 0.3em; }
-#preview-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; border-bottom: 1px solid #d0d7de; padding-bottom: 0.3em; }
+#preview-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+#preview-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
 #preview-content h3 { font-size: 1.25em; font-weight: bold; margin: 1em 0; }
 #preview-content h4 { font-size: 1em; font-weight: bold; margin: 1.33em 0; }
 #preview-content h5 { font-size: 0.875em; font-weight: bold; margin: 1.67em 0; }
