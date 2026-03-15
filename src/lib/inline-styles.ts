@@ -142,6 +142,30 @@ function convertHorizontalRules(doc: Document): void {
   }
 }
 
+function convertBlockquotes(doc: Document): void {
+  const blockquotes = Array.from(doc.querySelectorAll("blockquote"));
+  for (const bq of blockquotes) {
+    bq.setAttribute("data-ke-style", "style2");
+  }
+}
+
+function convertInlineCode(doc: Document): void {
+  // Convert inline <code> (not inside <pre>) to <span> for Tistory compatibility
+  const codes = Array.from(doc.querySelectorAll("code"));
+  for (const code of codes) {
+    if (code.parentElement?.tagName.toLowerCase() === "pre") continue;
+
+    const span = doc.createElement("span");
+    span.innerHTML = code.innerHTML;
+    span.setAttribute("style",
+      "background-color:#f1f3f5;padding:3px 6px;border-radius:4px;" +
+      "font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;" +
+      "font-size:85%;color:#e45735;"
+    );
+    code.parentNode?.replaceChild(span, code);
+  }
+}
+
 function unwrapTheadTbody(doc: Document): void {
   // Remove thead/tbody wrappers — Tistory doesn't handle them properly.
   // Move their child <tr> elements directly under <table>.
@@ -174,7 +198,13 @@ export function applyInlineStyles(html: string): string {
   // 3. Convert HR to Tistory format
   convertHorizontalRules(doc);
 
-  // 4. Apply inline styles to all elements
+  // 4. Convert blockquotes for Tistory
+  convertBlockquotes(doc);
+
+  // 5. Convert inline code to span for Tistory
+  convertInlineCode(doc);
+
+  // 6. Apply inline styles to all elements
   const allElements = doc.body.querySelectorAll("*");
   allElements.forEach((element) => {
     const tag = element.tagName.toLowerCase();
