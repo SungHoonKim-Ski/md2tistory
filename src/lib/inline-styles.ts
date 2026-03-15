@@ -199,11 +199,17 @@ function splitBrIntoParagraphs(doc: Document): void {
     }
     parts.push(currentPart);
 
-    for (const part of parts) {
-      const trimmed = part.trim();
+    for (let idx = 0; idx < parts.length; idx++) {
+      const trimmed = parts[idx].trim();
       if (trimmed === "") continue;
       const newP = doc.createElement("p");
       newP.innerHTML = trimmed;
+      // First part keeps original <p> style, subsequent parts get zero margin (line break, not new paragraph)
+      if (idx === 0) {
+        newP.setAttribute("style", p.getAttribute("style") || "");
+      } else {
+        newP.setAttribute("style", "margin:0;line-height:1.6;");
+      }
       fragment.appendChild(newP);
     }
 
@@ -249,10 +255,7 @@ export function applyInlineStyles(html: string): string {
   // 5. Convert inline code to span for Tistory
   convertInlineCode(doc);
 
-  // 6. Split <br> in <p> into separate <p> for Tistory line breaks
-  splitBrIntoParagraphs(doc);
-
-  // 7. Apply inline styles to all elements
+  // 6. Apply inline styles to all elements
   const allElements = doc.body.querySelectorAll("*");
   allElements.forEach((element) => {
     const tag = element.tagName.toLowerCase();
@@ -269,6 +272,9 @@ export function applyInlineStyles(html: string): string {
 
     applyHljsStyles(element);
   });
+
+  // 7. Split <br> in <p> into separate <p> for Tistory line breaks (after inline styles)
+  splitBrIntoParagraphs(doc);
 
   return doc.body.innerHTML;
 }
