@@ -44,7 +44,7 @@ export default function CopyButton() {
   return (
     <button
       onClick={handleCopy}
-      className={`w-full py-3 px-6 rounded text-white font-semibold transition-colors duration-150 ${colorMap[status]}`}
+      className={`px-4 py-1.5 text-sm rounded text-white font-semibold transition-colors duration-150 ${colorMap[status]}`}
     >
       {labelMap[status]}
     </button>
